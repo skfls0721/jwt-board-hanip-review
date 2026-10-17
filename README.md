@@ -127,6 +127,7 @@ npm run preview
 - Alice/Bob 권한 구분: Bob의 토큰으로 Alice 글을 수정·삭제하면 403 FORBIDDEN이고 글이 그대로임을 확인했습니다.
 - 토큰 없음·변조·만료: 각각 401 TOKEN_REQUIRED, INVALID_TOKEN, TOKEN_EXPIRED이고 모두 `WWW-Authenticate: Bearer` 헤더가 있음을 확인했습니다(만료는 `TOKEN_TTL=3`으로 재시작해 확인).
 - JWT 조작 시험: 본인의 로컬 시험용 키로 서명한 토큰의 알고리즘, iss, aud, exp, sub를 바꿔 `GET /api/me`와 `PUT /api/posts/{id}`로 시험했고 모두 401로 거부됐습니다(`docs/evidence/api-manual-part5.txt`).
+- JWT_SECRET 거부 시험: 키를 설정하지 않은 경우(예시 키가 기본값), 예시 키 그대로, 빈 값, 16진수 63자리의 네 경우 모두 서버가 시작되지 않고 오류 메시지가 출력됨을 확인했습니다(`docs/evidence/api-key-rejection.txt`).
 - 화면 시험: 로그인 표시, 글 작성(201), 타인 글의 버튼 숨김, 만료·로그아웃·새로고침, 400·403·404 안내, 서버가 꺼진 경우의 안내를 Safari 개발자 도구와 함께 확인했습니다(`docs/evidence/*.png`).
 - 시험 스크립트(`tools/manual/*.sh`, 저장소 루트에서 `bash`로 실행, macOS에서 시험, curl·python3·lsof 필요):
   - `part1.sh`~`part3.sh`: 백엔드를 기본 설정으로 실행한 상태에서 실행
@@ -142,8 +143,8 @@ npm run preview
 - AI 사용 여부: 사용
 - 도구와 사용 범위:
   - Codex(OpenAI): `AuthService.java`의 생성자(키·설정 검증)와 `validAudience`, `vite.config.js`는 제안 후 반영, `api.js`의 `getErrorMessage`와 `canEdit`은 초안 후 직접 수정했습니다.
-  - Claude(Anthropic): 과제 조건 대조 점검, `api.js` `request`의 연결 실패·JSON 파싱 실패 처리와 `App.vue`의 404 처리·로그아웃 폼 초기화·비로그인 안내 제안 반영, 시험 스크립트(`tools/manual`) 작성, README와 보고서 초안 작성
-- 직접 검증한 내용: 반영 후 직접 빌드하고 서버를 실행해 curl과 화면으로 확인했습니다. 401·403·404 응답, 토큰 변조·만료, 삭제 204, 서버 재시작 후 데이터 유지, 로그아웃과 새로고침, 400 안내를 확인했습니다.
-- 수업 자료 참고: 6주차 28쪽(토큰 발급), 6주차 35~40쪽·7주차 50·53쪽(토큰 검증), 7주차 65쪽(작성자 비교), 6주차 31·32·47쪽(프론트 토큰 보관·헤더·401 처리)
+  - Claude(Anthropic): 과제 조건 대조 점검, `api.js` `request`의 연결 실패·JSON 파싱 실패 처리와 `App.vue`의 404 처리·로그아웃 폼 초기화·비로그인 안내 제안 반영, 시험 스크립트(`tools/manual`) 작성, 백엔드·프론트 폴더 README 재작성, 루트 README와 보고서 초안 작성
+- 직접 검증한 내용: 반영 후 직접 빌드하고 서버를 실행해 curl과 화면으로 확인했습니다. 401·403·404 응답, 토큰 변조·만료, 삭제 204, 서버 재시작 후 데이터 유지, 로그아웃과 새로고침, 400 안내, `JWT_SECRET` 거부를 확인했습니다.
+- 수업 자료 참고: 6·7주차 강의 자료(서버 키 설정, `AuthService` 생성자), 6주차 28쪽(토큰 발급), 6주차 35~40쪽·7주차 50·53쪽(토큰 검증), 7주차 65쪽(작성자 비교), 6주차 31·32·47쪽(프론트 토큰 보관·헤더·401 처리)
 - 상세 활용 기록: 보고서 5절 (`docs/report.pdf`)
 - 참고한 자료: 수업 6주차(JWT 로그인), 7주차(JWT 접근 제어와 Swagger) 강의 자료, 과제 제공 템플릿과 `docs/02_API명세.md`

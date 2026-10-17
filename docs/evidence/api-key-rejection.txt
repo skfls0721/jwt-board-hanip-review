@@ -1,0 +1,23 @@
+JWT_SECRET 거부 시험 (BE-01): 잘못된 키로 서버를 시작하면 시작이 거부되는지 확인
+실행 일시: 2026-10-18 04:03:11
+
+### 미설정(기본값은 예시 키)
+종료 코드: 1
+Caused by: java.lang.IllegalStateException: JWT_SECRET은 32바이트를 나타내는 64자리 16진수여야 합니다.
+"Started BoardApplication" 출력: 0줄
+
+### 예시 키 그대로
+종료 코드: 1
+Caused by: java.lang.IllegalStateException: JWT_SECRET은 32바이트를 나타내는 64자리 16진수여야 합니다.
+"Started BoardApplication" 출력: 0줄
+
+### 빈 값
+종료 코드: 1
+Caused by: java.lang.IllegalStateException: JWT_SECRET은 32바이트를 나타내는 64자리 16진수여야 합니다.
+"Started BoardApplication" 출력: 0줄
+
+### 형식 오류(16진수 63자리)
+종료 코드: 1
+Caused by: java.lang.IllegalStateException: JWT_SECRET은 32바이트를 나타내는 64자리 16진수여야 합니다.
+"Started BoardApplication" 출력: 0줄
+
