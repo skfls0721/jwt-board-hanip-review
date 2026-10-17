@@ -1,0 +1,55 @@
+실행 일시: 2026-10-16 20:38:07
+시험 글 ID: 14, 시험 전 글 개수: 10
+
+--- 대조군: 시험용 키로 직접 만든 정상 토큰 ---
+PASS 정상 토큰(직접 생성)                   GET  실제: HTTP 200 code=- WWW-Authenticate=- | 기대: 200
+
+--- Authorization 헤더 형식 ---
+PASS Basic 방식 헤더                            GET  실제: HTTP 401 code=TOKEN_REQUIRED WWW-Authenticate=Bearer | 기대: 401 TOKEN_REQUIRED
+PASS Basic 방식 헤더                            PUT  실제: HTTP 401 code=TOKEN_REQUIRED WWW-Authenticate=Bearer | 기대: 401 TOKEN_REQUIRED
+PASS Bearer만 있고 토큰 없음                 GET  실제: HTTP 401 code=TOKEN_REQUIRED WWW-Authenticate=Bearer | 기대: 401 TOKEN_REQUIRED
+PASS Bearer만 있고 토큰 없음                 PUT  실제: HTTP 401 code=TOKEN_REQUIRED WWW-Authenticate=Bearer | 기대: 401 TOKEN_REQUIRED
+PASS Bearer 뒤 토큰 2개                         GET  실제: HTTP 401 code=TOKEN_REQUIRED WWW-Authenticate=Bearer | 기대: 401 TOKEN_REQUIRED
+PASS Bearer 뒤 토큰 2개                         PUT  실제: HTTP 401 code=TOKEN_REQUIRED WWW-Authenticate=Bearer | 기대: 401 TOKEN_REQUIRED
+PASS JWT 모양이 아닌 문자열                 GET  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS JWT 모양이 아닌 문자열                 PUT  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+
+--- 알고리즘 ---
+PASS HS512로 서명                                GET  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS HS512로 서명                                PUT  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS alg none(서명 없음)                        GET  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS alg none(서명 없음)                        PUT  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+
+--- 클레임 (서명은 올바름) ---
+PASS iss 불일치                                  GET  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS iss 불일치                                  PUT  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS aud 불일치                                  GET  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS aud 불일치                                  PUT  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS iss 누락                                     GET  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS iss 누락                                     PUT  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS exp 누락                                     GET  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS exp 누락                                     PUT  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS sub 누락                                     GET  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS sub 누락                                     PUT  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+
+--- sub 값 ---
+PASS sub=999 (없는 사용자)                     GET  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS sub=999 (없는 사용자)                     PUT  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS sub=abc (문자)                               GET  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS sub=abc (문자)                               PUT  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS sub=01 (앞에 0)                              GET  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS sub=01 (앞에 0)                              PUT  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS sub=1 (문자열이 아닌 숫자)             GET  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+PASS sub=1 (문자열이 아닌 숫자)             PUT  실제: HTTP 401 code=INVALID_TOKEN WWW-Authenticate=Bearer | 기대: 401 INVALID_TOKEN
+
+--- 시험 뒤 데이터 확인 ---
+### 원문 확인
+요청: GET /posts/14 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":14,"title":"T09 추가 시험 글","content":"원문 유지 확인용","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T11:38:07.621641Z","updatedAt":"2026-10-16T11:38:07.621641Z"}
+
+
+시험 후 글 개수: 10 (시험 전 10개와 같아야 함)
+결과 합계: PASS 31, FAIL 0

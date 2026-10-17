@@ -1,0 +1,12 @@
+실행 일시: 2026-10-16 12:53:17
+### T15 재시작 전: Alice 글 등록
+요청: POST /posts | 토큰: <TOKEN> | 본문: {"title":"T15 재시작 확인 글","content":"서버를 껐다 켜도 남아야 합니다."}
+HTTP/1.1 201 
+Location: /api/posts/8
+Content-Type: application/json
+
+{"id":8,"title":"T15 재시작 확인 글","content":"서버를 껐다 켜도 남아야 합니다.","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:53:18.255404Z","updatedAt":"2026-10-16T03:53:18.255404Z"}
+
+
+재시작 전 글 개수: 6
+재시작 전 서버 PID: 76791

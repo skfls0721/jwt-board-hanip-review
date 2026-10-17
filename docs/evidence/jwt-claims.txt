@@ -1,0 +1,4 @@
+header : {'alg': 'HS256'}
+payload: {'sub': '1', 'iss': 'webservice-class', 'aud': ['board-api'], 'iat': 1792148643, 'exp': 1792148733}
+exp - iat = 90 초
+비밀번호/해시 포함 여부: False

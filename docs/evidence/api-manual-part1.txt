@@ -1,0 +1,149 @@
+실행 일시: 2026-10-16 12:47:31
+### T02 Alice 로그인
+요청: POST /auth/login | 토큰: 없음 | 본문: {"email":"alice@class.test","password":"Classroom!2026"}
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"expiresIn":90,"user":{"id":1,"name":"Alice","email":"alice@class.test"},"accessToken":"<TOKEN>"}
+
+
+### T02 Bob 로그인
+요청: POST /auth/login | 토큰: 없음 | 본문: {"email":"bob@class.test","password":"Classroom!2026"}
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"expiresIn":90,"user":{"id":2,"name":"Bob","email":"bob@class.test"},"accessToken":"<TOKEN>"}
+
+
+### T03 잘못된 비밀번호
+요청: POST /auth/login | 토큰: 없음 | 본문: {"email":"alice@class.test","password":"wrong-password"}
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"message":"이메일 또는 비밀번호를 확인하세요.","code":"INVALID_CREDENTIALS"}
+
+
+### T03 없는 이메일
+요청: POST /auth/login | 토큰: 없음 | 본문: {"email":"nobody@class.test","password":"Classroom!2026"}
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"message":"이메일 또는 비밀번호를 확인하세요.","code":"INVALID_CREDENTIALS"}
+
+
+### T04 토큰 없이 /me
+요청: GET /me | 토큰: 없음 | 본문: 없음
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"message":"유효한 Bearer 토큰이 필요합니다.","code":"TOKEN_REQUIRED"}
+
+
+### T04 토큰 없이 글 등록
+요청: POST /posts | 토큰: 없음 | 본문: {"title":"x","content":"y"}
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"message":"유효한 Bearer 토큰이 필요합니다.","code":"TOKEN_REQUIRED"}
+
+
+### T05 Alice 글 등록
+요청: POST /posts | 토큰: <TOKEN> | 본문: {"title":"증거용 글","content":"Alice가 쓴 글입니다."}
+HTTP/1.1 201 
+Location: /api/posts/2
+Content-Type: application/json
+
+{"id":2,"title":"증거용 글","content":"Alice가 쓴 글입니다.","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:47:33.583466Z","updatedAt":"2026-10-16T03:47:33.583466Z"}
+
+
+### T05 /me (Alice 토큰)
+요청: GET /me | 토큰: <TOKEN> | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":1,"name":"Alice","email":"alice@class.test"}
+
+
+### T05 등록된 글의 authorId 확인
+요청: GET /posts/2 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":2,"title":"증거용 글","content":"Alice가 쓴 글입니다.","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:47:33.583466Z","updatedAt":"2026-10-16T03:47:33.583466Z"}
+
+
+### T01 토큰 없이 목록 조회
+요청: GET /posts | 토큰: 없음 | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+[{"id":2,"title":"증거용 글","content":"Alice가 쓴 글입니다.","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:47:33.583466Z","updatedAt":"2026-10-16T03:47:33.583466Z"},{"id":1,"title":"아중리 최고의 맛집","content":"하이퐁 쌀국수입니다. 쌀국수 곱배기에 최고 맛있는 볶음밥을 누려보세요. 입가심으로 월남쌈도 어떠실까요?","authorId":1,"authorName":"Alice","createdAt":"2026-10-15T09:53:58.143208Z","updatedAt":"2026-10-15T09:53:58.143208Z"}]
+
+
+### T01 토큰 없이 상세 조회
+요청: GET /posts/2 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":2,"title":"증거용 글","content":"Alice가 쓴 글입니다.","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:47:33.583466Z","updatedAt":"2026-10-16T03:47:33.583466Z"}
+
+
+### T06 Alice 본인 글 수정
+요청: PUT /posts/2 | 토큰: <TOKEN> | 본문: {"title":"증거용 글(수정)","content":"Alice가 수정했습니다."}
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":2,"title":"증거용 글(수정)","content":"Alice가 수정했습니다.","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:47:33.583466Z","updatedAt":"2026-10-16T03:47:33.664256Z"}
+
+
+### T06 Alice 본인 글 삭제(204)
+요청: DELETE /posts/3 | 토큰: <TOKEN> | 본문: 없음
+HTTP/1.1 204 
+
+
+
+### T06 삭제 후 조회(404)
+요청: GET /posts/3 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 404 
+Content-Type: application/json
+
+{"message":"게시글이 없습니다.","code":"NOT_FOUND"}
+
+
+### T07 Bob이 Alice 글 수정
+요청: PUT /posts/2 | 토큰: <TOKEN> | 본문: {"title":"Bob이 바꾼 제목","content":"Bob이 바꾼 내용"}
+HTTP/1.1 403 
+Content-Type: application/json
+
+{"message":"게시글 작성자만 수정하거나 삭제할 수 있습니다.","code":"FORBIDDEN"}
+
+
+### T07 수정 시도 후 원문 확인
+요청: GET /posts/2 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":2,"title":"증거용 글(수정)","content":"Alice가 수정했습니다.","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:47:33.583466Z","updatedAt":"2026-10-16T03:47:33.664256Z"}
+
+
+### T08 Bob이 Alice 글 삭제
+요청: DELETE /posts/2 | 토큰: <TOKEN> | 본문: 없음
+HTTP/1.1 403 
+Content-Type: application/json
+
+{"message":"게시글 작성자만 수정하거나 삭제할 수 있습니다.","code":"FORBIDDEN"}
+
+
+### T08 삭제 시도 후 글 유지 확인
+요청: GET /posts/2 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":2,"title":"증거용 글(수정)","content":"Alice가 수정했습니다.","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:47:33.583466Z","updatedAt":"2026-10-16T03:47:33.664256Z"}
+
+
+공통 시험 글 ID: 2 (Alice 글, 다음 스크립트에서 계속 사용)

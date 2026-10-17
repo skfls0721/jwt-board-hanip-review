@@ -1,0 +1,167 @@
+실행 일시: 2026-10-16 12:51:00
+시험 글 ID: 5 (Alice 소유)
+
+시험 전 글 개수: 4
+
+### T09 변조 토큰 GET /me
+요청: GET /me | 토큰: <TOKEN: 서명 첫 글자 변조> | 본문: 없음
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"message":"JWT 검증에 실패했습니다.","code":"INVALID_TOKEN"}
+
+
+### T09 변조 토큰 POST /posts
+요청: POST /posts | 토큰: <TOKEN: 서명 첫 글자 변조> | 본문: {"title":"변조 글","content":"생성되면 안 됨"}
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"message":"JWT 검증에 실패했습니다.","code":"INVALID_TOKEN"}
+
+
+### T09 변조 토큰 PUT /posts/5
+요청: PUT /posts/5 | 토큰: <TOKEN: 서명 첫 글자 변조> | 본문: {"title":"변조로 수정","content":"수정되면 안 됨"}
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"message":"JWT 검증에 실패했습니다.","code":"INVALID_TOKEN"}
+
+
+### T09 변조 토큰 DELETE /posts/5
+요청: DELETE /posts/5 | 토큰: <TOKEN: 서명 첫 글자 변조> | 본문: 없음
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"message":"JWT 검증에 실패했습니다.","code":"INVALID_TOKEN"}
+
+
+### T09 변조 요청 뒤 원문 확인
+요청: GET /posts/5 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":5,"title":"T09~T13 시험 글","content":"원문 유지 확인용 본문","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:51:00.767700Z","updatedAt":"2026-10-16T03:51:00.767700Z"}
+
+
+T09 후 글 개수: 4 (시험 전 4개와 같아야 함)
+
+### T12 Bob 등록 + authorId:1
+요청: POST /posts | 토큰: <TOKEN> | 본문: {"title":"위조 시도","content":"작성자 위조","authorId":1}
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"허용된 JSON 필드만 보내세요.","code":"BAD_INPUT"}
+
+
+### T12 Bob 등록 + userId:1
+요청: POST /posts | 토큰: <TOKEN> | 본문: {"title":"위조 시도","content":"작성자 위조","userId":1}
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"허용된 JSON 필드만 보내세요.","code":"BAD_INPUT"}
+
+
+### T12 Bob 등록 + id:1
+요청: POST /posts | 토큰: <TOKEN> | 본문: {"title":"위조 시도","content":"작성자 위조","id":1}
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"허용된 JSON 필드만 보내세요.","code":"BAD_INPUT"}
+
+
+### T12 Alice 본인 글 수정 + authorId:2
+요청: PUT /posts/5 | 토큰: <TOKEN> | 본문: {"title":"x","content":"y","authorId":2}
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"허용된 JSON 필드만 보내세요.","code":"BAD_INPUT"}
+
+
+### T12 위조 시도 뒤 원문 확인
+요청: GET /posts/5 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":5,"title":"T09~T13 시험 글","content":"원문 유지 확인용 본문","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:51:00.767700Z","updatedAt":"2026-10-16T03:51:00.767700Z"}
+
+
+T12 후 글 개수: 4 (시도 전 4개와 같아야 함)
+
+### T13 등록: 빈 제목
+요청: POST /posts | 토큰: <TOKEN> | 본문: {"title":"","content":"y"}
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"title 입력을 확인하세요.","code":"BAD_INPUT"}
+
+
+### T13 등록: 공백 본문
+요청: POST /posts | 토큰: <TOKEN> | 본문: {"title":"x","content":"   "}
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"content 입력을 확인하세요.","code":"BAD_INPUT"}
+
+
+### T13 등록: 제목 101자
+요청: POST /posts | 토큰: <TOKEN> | 본문: {"title":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(본문 총 127자)
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"title 입력을 확인하세요.","code":"BAD_INPUT"}
+
+
+### T13 등록: 내용 5001자
+요청: POST /posts | 토큰: <TOKEN> | 본문: {"title":"x","content":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(본문 총 5027자)
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"content 입력을 확인하세요.","code":"BAD_INPUT"}
+
+
+T13 등록 시도 후 글 개수: 4 (시도 전 4개와 같아야 함)
+
+### T13 수정: 빈 제목
+요청: PUT /posts/5 | 토큰: <TOKEN> | 본문: {"title":"","content":"y"}
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"title 입력을 확인하세요.","code":"BAD_INPUT"}
+
+
+### T13 수정: 공백 본문
+요청: PUT /posts/5 | 토큰: <TOKEN> | 본문: {"title":"x","content":"   "}
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"content 입력을 확인하세요.","code":"BAD_INPUT"}
+
+
+### T13 수정: 제목 101자
+요청: PUT /posts/5 | 토큰: <TOKEN> | 본문: {"title":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(본문 총 127자)
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"title 입력을 확인하세요.","code":"BAD_INPUT"}
+
+
+### T13 수정: 내용 5001자
+요청: PUT /posts/5 | 토큰: <TOKEN> | 본문: {"title":"x","content":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(본문 총 5027자)
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"content 입력을 확인하세요.","code":"BAD_INPUT"}
+
+
+### T13 수정 실패 뒤 원문 확인
+요청: GET /posts/5 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":5,"title":"T09~T13 시험 글","content":"원문 유지 확인용 본문","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:51:00.767700Z","updatedAt":"2026-10-16T03:51:00.767700Z"}
+
+

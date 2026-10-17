@@ -1,0 +1,186 @@
+실행 일시: 2026-10-16 12:51:19
+시험 글 ID: 6 (Alice 소유)
+
+### T14 없는 글 조회
+요청: GET /posts/999999 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 404 
+Content-Type: application/json
+
+{"message":"게시글이 없습니다.","code":"NOT_FOUND"}
+
+
+### T14 없는 글 수정 (정상 토큰)
+요청: PUT /posts/999999 | 토큰: <TOKEN> | 본문: {"title":"x","content":"y"}
+HTTP/1.1 404 
+Content-Type: application/json
+
+{"message":"게시글이 없습니다.","code":"NOT_FOUND"}
+
+
+### T14 없는 글 삭제 (정상 토큰)
+요청: DELETE /posts/999999 | 토큰: <TOKEN> | 본문: 없음
+HTTP/1.1 404 
+Content-Type: application/json
+
+{"message":"게시글이 없습니다.","code":"NOT_FOUND"}
+
+
+### T14 잘못된 ID 조회: abc
+요청: GET /posts/abc | 토큰: 없음 | 본문: 없음
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"ID는 양의 정수여야 합니다.","code":"BAD_INPUT"}
+
+
+### T14 잘못된 ID 조회: 0
+요청: GET /posts/0 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"ID는 양의 정수여야 합니다.","code":"BAD_INPUT"}
+
+
+### T14 잘못된 ID 조회: -1
+요청: GET /posts/-1 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"ID는 양의 정수여야 합니다.","code":"BAD_INPUT"}
+
+
+### T14 잘못된 ID 조회: 1.5
+요청: GET /posts/1.5 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 400 
+Content-Disposition: inline;filename=f.txt
+Content-Type: application/json
+
+{"message":"ID는 양의 정수여야 합니다.","code":"BAD_INPUT"}
+
+
+### T14 잘못된 ID 수정: abc (정상 토큰)
+요청: PUT /posts/abc | 토큰: <TOKEN> | 본문: {"title":"x","content":"y"}
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"ID는 양의 정수여야 합니다.","code":"BAD_INPUT"}
+
+
+### T14 잘못된 ID 삭제: abc (정상 토큰)
+요청: DELETE /posts/abc | 토큰: <TOKEN> | 본문: 없음
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"ID는 양의 정수여야 합니다.","code":"BAD_INPUT"}
+
+
+===== 오류 조건이 겹칠 때 =====
+
+### 겹침 1: 토큰 없이 없는 글 수정
+요청: PUT /posts/999999 | 토큰: 없음 | 본문: {"title":"x","content":"y"}
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"message":"유효한 Bearer 토큰이 필요합니다.","code":"TOKEN_REQUIRED"}
+
+
+### 겹침 2: 정상 토큰으로 같은 없는 글 수정
+요청: PUT /posts/999999 | 토큰: <TOKEN> | 본문: {"title":"x","content":"y"}
+HTTP/1.1 404 
+Content-Type: application/json
+
+{"message":"게시글이 없습니다.","code":"NOT_FOUND"}
+
+
+### 겹침 3: Bob이 Alice 글에 공백 제목
+요청: PUT /posts/6 | 토큰: <TOKEN> | 본문: {"title":"   ","content":"y"}
+HTTP/1.1 403 
+Content-Type: application/json
+
+{"message":"게시글 작성자만 수정하거나 삭제할 수 있습니다.","code":"FORBIDDEN"}
+
+
+### 겹침 4: Alice가 자기 글에 공백 제목
+요청: PUT /posts/6 | 토큰: <TOKEN> | 본문: {"title":"   ","content":"y"}
+HTTP/1.1 400 
+Content-Type: application/json
+
+{"message":"title 입력을 확인하세요.","code":"BAD_INPUT"}
+
+
+### 겹침 5: 공백 제목 시도 뒤 원문 확인
+요청: GET /posts/6 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":6,"title":"T14~T17 시험 글","content":"Alice 소유, 원문 유지 확인용","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:51:20.488448Z","updatedAt":"2026-10-16T03:51:20.488448Z"}
+
+
+===== T17 =====
+
+### T17 토큰 없이 수정
+요청: PUT /posts/6 | 토큰: 없음 | 본문: {"title":"x","content":"y"}
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"message":"유효한 Bearer 토큰이 필요합니다.","code":"TOKEN_REQUIRED"}
+
+
+### T17 토큰 없이 삭제
+요청: DELETE /posts/6 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"message":"유효한 Bearer 토큰이 필요합니다.","code":"TOKEN_REQUIRED"}
+
+
+### T17 무토큰 시도 뒤 원문 확인
+요청: GET /posts/6 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":6,"title":"T14~T17 시험 글","content":"Alice 소유, 원문 유지 확인용","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:51:20.488448Z","updatedAt":"2026-10-16T03:51:20.488448Z"}
+
+
+### T17 Bob 글 등록
+요청: POST /posts | 토큰: <TOKEN> | 본문: {"title":"Bob의 글","content":"Bob이 작성"}
+HTTP/1.1 201 
+Location: /api/posts/7
+Content-Type: application/json
+
+{"id":7,"title":"Bob의 글","content":"Bob이 작성","authorId":2,"authorName":"Bob","createdAt":"2026-10-16T03:51:20.688164Z","updatedAt":"2026-10-16T03:51:20.688164Z"}
+
+
+### T17 Bob 본인 글 수정
+요청: PUT /posts/7 | 토큰: <TOKEN> | 본문: {"title":"Bob의 글(수정)","content":"Bob이 수정"}
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":7,"title":"Bob의 글(수정)","content":"Bob이 수정","authorId":2,"authorName":"Bob","createdAt":"2026-10-16T03:51:20.688164Z","updatedAt":"2026-10-16T03:51:20.716883Z"}
+
+
+### T17 Bob 본인 글 삭제
+요청: DELETE /posts/7 | 토큰: <TOKEN> | 본문: 없음
+HTTP/1.1 204 
+
+
+
+### T17 Bob 글 삭제 후 조회
+요청: GET /posts/7 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 404 
+Content-Type: application/json
+
+{"message":"게시글이 없습니다.","code":"NOT_FOUND"}
+
+
+### T17 Alice 글은 그대로
+요청: GET /posts/6 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":6,"title":"T14~T17 시험 글","content":"Alice 소유, 원문 유지 확인용","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:51:20.488448Z","updatedAt":"2026-10-16T03:51:20.488448Z"}
+
+

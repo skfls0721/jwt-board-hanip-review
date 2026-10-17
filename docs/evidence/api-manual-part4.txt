@@ -1,0 +1,81 @@
+실행 일시: 2026-10-16 12:53:52
+===== T15 재시작 후 확인 =====
+재시작 후 서버 PID: 78233
+재시작 전후 글 목록(제목·작성자·내용·시각 포함) 동일: 일치
+재시작 후 글 개수: 6
+### T15 재시작 후 조회: 재시작 전에 쓴 글
+요청: GET /posts/8 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":8,"title":"T15 재시작 확인 글","content":"서버를 껐다 켜도 남아야 합니다.","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:53:18.255404Z","updatedAt":"2026-10-16T03:53:18.255404Z"}
+
+
+
+===== T10 토큰 만료 (TOKEN_TTL=3) =====
+### T10 TTL 확인: 로그인 응답의 expiresIn
+요청: POST /auth/login | 토큰: 없음 | 본문: {"email":"alice@class.test","password":"Classroom!2026"}
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"expiresIn":3,"user":{"id":1,"name":"Alice","email":"alice@class.test"},"accessToken":"<TOKEN>"}
+
+
+시험 글 ID: 9 (Alice 소유)
+만료 시험 전 글 개수: 7
+토큰 발급 후 6초 대기
+
+### T10 만료 토큰 GET /me
+요청: GET /me | 토큰: <TOKEN: 발급 6초 후, 만료됨> | 본문: 없음
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"code":"TOKEN_EXPIRED","message":"JWT가 만료되었습니다."}
+
+
+### T10 만료 토큰 POST /posts
+요청: POST /posts | 토큰: <TOKEN: 발급 6초 후, 만료됨> | 본문: {"title":"만료 글","content":"생성되면 안 됨"}
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"code":"TOKEN_EXPIRED","message":"JWT가 만료되었습니다."}
+
+
+### T10 만료 토큰 PUT /posts/9
+요청: PUT /posts/9 | 토큰: <TOKEN: 발급 6초 후, 만료됨> | 본문: {"title":"만료로 수정","content":"수정되면 안 됨"}
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"code":"TOKEN_EXPIRED","message":"JWT가 만료되었습니다."}
+
+
+### T10 만료 토큰 DELETE /posts/9
+요청: DELETE /posts/9 | 토큰: <TOKEN: 발급 6초 후, 만료됨> | 본문: 없음
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"code":"TOKEN_EXPIRED","message":"JWT가 만료되었습니다."}
+
+
+### T10 Bob의 만료 토큰으로 Alice 글 수정
+요청: PUT /posts/9 | 토큰: <TOKEN: 발급 6초 후, 만료됨> | 본문: {"title":"x","content":"y"}
+HTTP/1.1 401 
+WWW-Authenticate: Bearer
+Content-Type: application/json
+
+{"code":"TOKEN_EXPIRED","message":"JWT가 만료되었습니다."}
+
+
+### T10 만료 요청 뒤 원문 확인
+요청: GET /posts/9 | 토큰: 없음 | 본문: 없음
+HTTP/1.1 200 
+Content-Type: application/json
+
+{"id":9,"title":"T10 만료 시험 글","content":"만료 토큰으로 바뀌면 안 됨","authorId":1,"authorName":"Alice","createdAt":"2026-10-16T03:53:53.909117Z","updatedAt":"2026-10-16T03:53:53.909117Z"}
+
+
+만료 시험 후 글 개수: 7 (시험 전 7개와 같아야 함)
